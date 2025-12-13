@@ -24,7 +24,7 @@ class YouTubeChatBuffer:
         """
         self.video_id = video_id
         self.chat = None
-        self.buffer = deque(maxlen=200)
+        self.buffer = deque()  # Unlimited buffer - keeps all messages during session
         self.buffer_lock = Lock()
         self.worker_thread = None
         self.stop_flag = Event()
