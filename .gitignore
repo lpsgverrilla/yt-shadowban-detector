@@ -1,0 +1,40 @@
+# Ignore planning and documentation files in root folder only
+/*.txt
+!README.txt
+/*.md
+!README.md
+
+# LLM/AI assistant folders
+.claude/
+.codex/
+.copilot/
+.cursor/
+.aider/
+.continue/
+.codeium/
+.tabnine/
+.amazonq/
+.cody/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
