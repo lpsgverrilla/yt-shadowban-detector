@@ -27,6 +27,22 @@ The application connects to YouTube's public livestream chat API (via [pytchat](
 - **PyInstaller** - Executable bundling
 - **pytest** - Testing framework (105 tests, 100% passing)
 
+## Documentation
+
+Complete technical documentation is available in the `docs/` folder:
+
+```
+docs/
+├── getting-started/    Setup, installation, and quick start guides
+├── architecture/       System design, threading model, and data structures
+├── api-reference/      High-level module documentation
+├── development/        Testing, building, and release workflows
+├── guides/             User flows, troubleshooting, and error handling
+└── reference/          Dependencies, limitations, and future enhancements
+```
+
+**For developers and LLM agents**: See [CLAUDE.md](CLAUDE.md) for a navigation guide to the documentation structure, or start with [docs/README.md](docs/README.md) for a complete index.
+
 ## Installation
 
 Download the latest release from the [Releases page](https://github.com/lpsgverrilla/yt-shadowban-detector/releases) and run `yt-shadowban-detector.exe`.
