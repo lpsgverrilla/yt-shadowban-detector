@@ -1,5 +1,5 @@
 """
-User Interface for yt-echo-test
+User Interface for yt-shadowban-detector
 Redesigned step-by-step wizard interface
 """
 

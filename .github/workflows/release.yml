@@ -45,27 +45,27 @@ jobs:
 
       - name: Create release package
         run: |
-          mkdir yt-echo-test
-          copy README.md yt-echo-test\
-          copy LICENSE yt-echo-test\
-          copy dist\yt-echo-test.exe yt-echo-test\
-          tar -a -c -f yt-echo-test-${{ steps.get_version.outputs.VERSION }}.zip yt-echo-test
+          mkdir yt-shadowban-detector
+          copy README.md yt-shadowban-detector\
+          copy LICENSE yt-shadowban-detector\
+          copy dist\yt-shadowban-detector.exe yt-shadowban-detector\
+          tar -a -c -f yt-shadowban-detector-${{ steps.get_version.outputs.VERSION }}.zip yt-shadowban-detector
         shell: cmd
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: yt-echo-test-${{ steps.get_version.outputs.VERSION }}.zip
+          files: yt-shadowban-detector-${{ steps.get_version.outputs.VERSION }}.zip
           body: |
-            ## yt-echo-test ${{ steps.get_version.outputs.VERSION }}
+            ## yt-shadowban-detector ${{ steps.get_version.outputs.VERSION }}
 
             ### Installation
-            1. Download `yt-echo-test-${{ steps.get_version.outputs.VERSION }}.zip`
+            1. Download `yt-shadowban-detector-${{ steps.get_version.outputs.VERSION }}.zip`
             2. Extract the zip file
-            3. Run `yt-echo-test.exe`
+            3. Run `yt-shadowban-detector.exe`
 
             ### What's Included
-            - `yt-echo-test.exe` - Windows executable
+            - `yt-shadowban-detector.exe` - Windows executable
             - `README.md` - Documentation
             - `LICENSE` - License information
           draft: false

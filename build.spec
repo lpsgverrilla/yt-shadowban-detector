@@ -44,7 +44,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='yt-echo-test',
+    name='yt-shadowban-detector',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

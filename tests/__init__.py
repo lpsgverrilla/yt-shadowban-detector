@@ -1,3 +1,3 @@
 """
-Test suite for yt-echo-test
+Test suite for yt-shadowban-detector
 """

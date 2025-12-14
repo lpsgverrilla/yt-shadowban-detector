@@ -1,5 +1,5 @@
 """
-yt-echo-test - YouTube Shadowban Detection Tool
+yt-shadowban-detector - YouTube Shadowban Detection Tool
 Entry point for the application
 """
 

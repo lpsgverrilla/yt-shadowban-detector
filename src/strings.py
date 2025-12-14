@@ -1,12 +1,12 @@
 """
-UI Strings for yt-echo-test
+UI Strings for yt-shadowban-detector
 All text labels and messages organized by screen
 """
 
 # =============================================================================
 # APP
 # =============================================================================
-APP_TITLE = "yt-echo-test"
+APP_TITLE = "yt-shadowban-detector"
 
 # Total number of steps (for display in intro)
 TOTAL_STEPS = 4
