@@ -1,13 +1,21 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import os
+import customtkinter
+
 block_cipher = None
+
+# Get CustomTkinter path for including assets
+ctk_path = os.path.dirname(customtkinter.__file__)
 
 
 a = Analysis(
     ['src/main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        (ctk_path, 'customtkinter'),
+    ],
     hiddenimports=[
         'pytchat',
         'pytchat.config',
@@ -24,6 +32,10 @@ a = Analysis(
         'collections',
         'datetime',
         're',
+        'customtkinter',
+        'customtkinter.windows',
+        'customtkinter.windows.widgets',
+        'darkdetect',
     ],
     hookspath=[],
     hooksconfig={},
