@@ -3,13 +3,14 @@ User Interface for yt-shadowban-detector
 Redesigned step-by-step wizard interface
 """
 
-import tkinter as tk
-from tkinter import ttk, messagebox
+import customtkinter as ctk
+from tkinter import messagebox
 from threading import Thread
 from datetime import datetime
 from url_validator import parse_youtube_url, validate_livestream
 from chat_engine import YouTubeChatBuffer
 import strings as S
+from theme import COLORS_DARK, FONTS, SPACING, DIMENSIONS
 
 
 # UI States (Step-by-step flow)
@@ -31,8 +32,8 @@ class Application:
 
     def __init__(self, root):
         self.root = root
-        self.root.title(S.APP_TITLE)
-        self.root.geometry("500x450")
+        self.root.title("yt-shadowban-detector")  # Text-only window title
+        self.root.geometry(f"{DIMENSIONS['window_width']}x{DIMENSIONS['window_height']}")
         self.root.resizable(False, False)
 
         # Try to keep window on top
@@ -67,16 +68,21 @@ class Application:
         Build all UI components
         """
         # Main container with padding
-        main_frame = ttk.Frame(self.root, padding="20")
-        main_frame.pack(fill=tk.BOTH, expand=True)
+        main_frame = ctk.CTkFrame(self.root, fg_color=COLORS_DARK['bg_app'])
+        main_frame.pack(fill="both", expand=True, padx=SPACING['lg'], pady=SPACING['lg'])
 
         # Step indicator
-        self.step_label = ttk.Label(main_frame, text="Step 1", font=("TkDefaultFont", 9), foreground="gray")
-        self.step_label.pack(anchor=tk.E, pady=(0, 10))
+        self.step_label = ctk.CTkLabel(
+            main_frame,
+            text="Step 1",
+            font=FONTS['caption'],
+            text_color=COLORS_DARK['text_tertiary']
+        )
+        self.step_label.pack(anchor="e", pady=(0, SPACING['sm']))
 
         # Content frame (this changes based on state)
-        self.content_frame = ttk.Frame(main_frame)
-        self.content_frame.pack(fill=tk.BOTH, expand=True)
+        self.content_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        self.content_frame.pack(fill="both", expand=True)
 
         # We'll build different content for each step dynamically
 
@@ -87,20 +93,34 @@ class Application:
 
     def _build_step0_intro(self):
         """Build Step 0: Introduction screen"""
-        self.step_label.config(text=S.STEP0_LABEL)
+        self.step_label.configure(text=S.STEP0_LABEL)
 
         # Centered explanatory text
         intro_text = S.STEP0_INTRO_TEXT.format(total_steps=S.TOTAL_STEPS)
 
-        intro_label = ttk.Label(self.content_frame, text=intro_text,
-                                foreground="gray", font=("TkDefaultFont", 10),
-                                wraplength=400, justify=tk.CENTER)
-        intro_label.pack(expand=True, pady=(60, 40))
+        intro_label = ctk.CTkLabel(
+            self.content_frame,
+            text=intro_text,
+            text_color=COLORS_DARK['text_secondary'],
+            font=FONTS['body_sm'],
+            wraplength=450,
+            justify="center"
+        )
+        intro_label.pack(expand=True, pady=(SPACING['2xl'], SPACING['xl']))
 
         # Start now button
-        start_now_button = ttk.Button(self.content_frame, text=S.STEP0_BUTTON,
-                                      command=lambda: self._set_state(STATE_STEP1_URL))
-        start_now_button.pack(pady=20)
+        start_now_button = ctk.CTkButton(
+            self.content_frame,
+            text=S.STEP0_BUTTON,
+            command=lambda: self._set_state(STATE_STEP1_URL),
+            fg_color=COLORS_DARK['primary'],
+            hover_color=COLORS_DARK['primary_hover'],
+            text_color='white',
+            font=FONTS['body'],
+            corner_radius=DIMENSIONS['corner_radius'],
+            height=DIMENSIONS['button_height']
+        )
+        start_now_button.pack(pady=SPACING['lg'])
 
     def _set_state(self, state):
         """
@@ -129,207 +149,354 @@ class Application:
 
     def _build_step1_url(self):
         """Build Step 1: Enter URL"""
-        self.step_label.config(text=S.STEP1_LABEL)
+        self.step_label.configure(text=S.STEP1_LABEL)
 
         # Title
-        title = ttk.Label(self.content_frame, text=S.STEP1_TITLE,
-                         font=("TkDefaultFont", 12, "bold"))
-        title.pack(pady=(20, 30))
+        title = ctk.CTkLabel(
+            self.content_frame,
+            text=S.STEP1_TITLE,
+            font=FONTS['h1'],
+            text_color=COLORS_DARK['text_primary']
+        )
+        title.pack(pady=(SPACING['lg'], SPACING['xl']))
 
         # URL entry
-        url_frame = ttk.Frame(self.content_frame)
-        url_frame.pack(fill=tk.X, padx=20, pady=(0, 10))
+        url_frame = ctk.CTkFrame(self.content_frame, fg_color="transparent")
+        url_frame.pack(fill="x", padx=SPACING['lg'], pady=(0, SPACING['sm']))
 
-        self.url_entry = ttk.Entry(url_frame, font=("TkDefaultFont", 10))
-        self.url_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        self.url_entry = ctk.CTkEntry(
+            url_frame,
+            font=FONTS['body'],
+            height=DIMENSIONS['input_height'],
+            fg_color=COLORS_DARK['bg_elevated'],
+            border_color=COLORS_DARK['border'],
+            text_color=COLORS_DARK['text_primary']
+        )
+        self.url_entry.pack(side="left", fill="x", expand=True)
         self.url_entry.bind('<KeyRelease>', self._on_url_changed)
 
-        self.url_icon_label = ttk.Label(url_frame, text="", width=3, font=("TkDefaultFont", 12))
-        self.url_icon_label.pack(side=tk.LEFT, padx=(5, 0))
+        self.url_icon_label = ctk.CTkLabel(
+            url_frame,
+            text="",
+            width=30,
+            font=FONTS['h2']
+        )
+        self.url_icon_label.pack(side="left", padx=(SPACING['sm'], 0))
 
         # Status message
-        self.status_label = ttk.Label(self.content_frame, text=S.STEP1_HINT,
-                                     foreground="gray", font=("TkDefaultFont", 9))
-        self.status_label.pack(pady=(0, 30))
+        self.status_label = ctk.CTkLabel(
+            self.content_frame,
+            text=S.STEP1_HINT,
+            text_color=COLORS_DARK['text_tertiary'],
+            font=FONTS['caption']
+        )
+        self.status_label.pack(pady=(0, SPACING['xl']))
 
         # Next step button
-        self.start_button = ttk.Button(self.content_frame, text=S.STEP1_BUTTON,
-                                       command=self._on_start_clicked, state=tk.DISABLED)
-        self.start_button.pack(pady=20)
+        self.start_button = ctk.CTkButton(
+            self.content_frame,
+            text=S.STEP1_BUTTON,
+            command=self._on_start_clicked,
+            state="disabled",
+            fg_color=COLORS_DARK['primary'],
+            hover_color=COLORS_DARK['primary_hover'],
+            text_color='white',
+            font=FONTS['body'],
+            corner_radius=DIMENSIONS['corner_radius'],
+            height=DIMENSIONS['button_height']
+        )
+        self.start_button.pack(pady=SPACING['lg'])
 
     def _build_connecting(self):
         """Build connecting screen"""
-        self.step_label.config(text="")
+        self.step_label.configure(text="")
 
         # Connecting message
-        msg = ttk.Label(self.content_frame, text=S.CONNECTING_TITLE,
-                       font=("TkDefaultFont", 12))
+        msg = ctk.CTkLabel(
+            self.content_frame,
+            text=S.CONNECTING_TITLE,
+            font=FONTS['h1'],
+            text_color=COLORS_DARK['text_primary']
+        )
         msg.pack(pady=100)
 
-        status = ttk.Label(self.content_frame, text=S.CONNECTING_STATUS, foreground="gray")
+        status = ctk.CTkLabel(
+            self.content_frame,
+            text=S.CONNECTING_STATUS,
+            text_color=COLORS_DARK['text_secondary'],
+            font=FONTS['body']
+        )
         status.pack()
 
     def _show_buffer_delay_screen(self):
         """Show waiting screen while buffering initializes"""
         self._clear_content()
-        self.step_label.config(text="")
+        self.step_label.configure(text="")
 
         # Title
-        title = ttk.Label(self.content_frame, text=S.BUFFER_DELAY_TITLE,
-                         font=("TkDefaultFont", 12, "bold"))
-        title.pack(pady=(60, 20))
+        title = ctk.CTkLabel(
+            self.content_frame,
+            text=S.BUFFER_DELAY_TITLE,
+            font=FONTS['h1'],
+            text_color=COLORS_DARK['text_primary']
+        )
+        title.pack(pady=(SPACING['2xl'], SPACING['lg']))
 
         # Info
-        info = ttk.Label(self.content_frame,
-                        text=S.BUFFER_DELAY_INFO,
-                        foreground="gray", justify=tk.CENTER)
-        info.pack(pady=10)
+        info = ctk.CTkLabel(
+            self.content_frame,
+            text=S.BUFFER_DELAY_INFO,
+            text_color=COLORS_DARK['text_secondary'],
+            font=FONTS['body'],
+            justify="center"
+        )
+        info.pack(pady=SPACING['sm'])
 
         # Countdown display
-        self.countdown_label = ttk.Label(self.content_frame, text="8",
-                                        font=("TkDefaultFont", 36, "bold"),
-                                        foreground="blue")
-        self.countdown_label.pack(pady=40)
+        self.countdown_label = ctk.CTkLabel(
+            self.content_frame,
+            text="8",
+            font=FONTS['display'],
+            text_color=COLORS_DARK['primary']
+        )
+        self.countdown_label.pack(pady=SPACING['xl'])
 
-        self.countdown_text = ttk.Label(self.content_frame, text=S.BUFFER_DELAY_SECONDS_REMAINING,
-                                       foreground="gray")
+        self.countdown_text = ctk.CTkLabel(
+            self.content_frame,
+            text=S.BUFFER_DELAY_SECONDS_REMAINING,
+            text_color=COLORS_DARK['text_secondary'],
+            font=FONTS['body']
+        )
         self.countdown_text.pack()
 
     def _show_search_delay_screen(self):
         """Show waiting screen before entering username"""
         self._clear_content()
-        self.step_label.config(text=S.SEARCH_DELAY_LABEL)
+        self.step_label.configure(text=S.SEARCH_DELAY_LABEL)
 
         # Title
-        title = ttk.Label(self.content_frame, text=S.SEARCH_DELAY_TITLE,
-                         font=("TkDefaultFont", 12, "bold"))
-        title.pack(pady=(60, 20))
+        title = ctk.CTkLabel(
+            self.content_frame,
+            text=S.SEARCH_DELAY_TITLE,
+            font=FONTS['h1'],
+            text_color=COLORS_DARK['text_primary']
+        )
+        title.pack(pady=(SPACING['2xl'], SPACING['lg']))
 
         # Info
-        info = ttk.Label(self.content_frame,
-                        text=S.SEARCH_DELAY_INFO,
-                        foreground="gray", justify=tk.CENTER)
-        info.pack(pady=10)
+        info = ctk.CTkLabel(
+            self.content_frame,
+            text=S.SEARCH_DELAY_INFO,
+            text_color=COLORS_DARK['text_secondary'],
+            font=FONTS['body'],
+            justify="center"
+        )
+        info.pack(pady=SPACING['sm'])
 
         # Countdown display
-        self.countdown_label = ttk.Label(self.content_frame, text="8",
-                                        font=("TkDefaultFont", 36, "bold"),
-                                        foreground="blue")
-        self.countdown_label.pack(pady=40)
+        self.countdown_label = ctk.CTkLabel(
+            self.content_frame,
+            text="8",
+            font=FONTS['display'],
+            text_color=COLORS_DARK['primary']
+        )
+        self.countdown_label.pack(pady=SPACING['xl'])
 
-        self.countdown_text = ttk.Label(self.content_frame, text=S.SEARCH_DELAY_SECONDS_REMAINING,
-                                       foreground="gray")
+        self.countdown_text = ctk.CTkLabel(
+            self.content_frame,
+            text=S.SEARCH_DELAY_SECONDS_REMAINING,
+            text_color=COLORS_DARK['text_secondary'],
+            font=FONTS['body']
+        )
         self.countdown_text.pack()
 
     def _build_step2_monitoring(self):
         """Build Step 2: Monitoring active"""
-        self.step_label.config(text=S.STEP2_LABEL)
+        self.step_label.configure(text=S.STEP2_LABEL)
 
         # Success message
-        title = ttk.Label(self.content_frame, text=S.STEP2_TITLE,
-                         font=("TkDefaultFont", 12, "bold"), foreground="green")
-        title.pack(pady=(20, 10))
+        title = ctk.CTkLabel(
+            self.content_frame,
+            text=S.STEP2_TITLE,
+            font=FONTS['h1'],
+            text_color=COLORS_DARK['success']
+        )
+        title.pack(pady=(SPACING['lg'], SPACING['sm']))
 
-        desc = ttk.Label(self.content_frame, text=S.STEP2_DESCRIPTION,
-                        foreground="gray")
-        desc.pack(pady=(0, 30))
+        desc = ctk.CTkLabel(
+            self.content_frame,
+            text=S.STEP2_DESCRIPTION,
+            text_color=COLORS_DARK['text_secondary'],
+            font=FONTS['body']
+        )
+        desc.pack(pady=(0, SPACING['xl']))
 
         # Buffer stats (large display)
-        self.buffer_stats_frame = ttk.Frame(self.content_frame)
-        self.buffer_stats_frame.pack(pady=20)
+        self.buffer_stats_frame = ctk.CTkFrame(self.content_frame, fg_color="transparent")
+        self.buffer_stats_frame.pack(pady=SPACING['lg'])
 
-        self.buffer_label = ttk.Label(self.buffer_stats_frame,
-                                      text=S.STEP2_BUFFER_INITIAL,
-                                      font=("TkDefaultFont", 14))
+        self.buffer_label = ctk.CTkLabel(
+            self.buffer_stats_frame,
+            text=S.STEP2_BUFFER_INITIAL,
+            font=FONTS['h2'],
+            text_color=COLORS_DARK['text_primary']
+        )
         self.buffer_label.pack()
 
         # Info text
-        info = ttk.Label(self.content_frame,
-                        text=S.STEP2_INFO,
-                        foreground="gray", justify=tk.CENTER, font=("TkDefaultFont", 9))
-        info.pack(pady=(30, 5))
+        info = ctk.CTkLabel(
+            self.content_frame,
+            text=S.STEP2_INFO,
+            text_color=COLORS_DARK['text_tertiary'],
+            font=FONTS['caption'],
+            justify="center"
+        )
+        info.pack(pady=(SPACING['xl'], SPACING['xs']))
 
         # Self-test info
-        self_test_info = ttk.Label(self.content_frame,
-                        text=S.STEP2_SELF_TEST_INFO,
-                        foreground="gray", justify=tk.CENTER, font=("TkDefaultFont", 9))
-        self_test_info.pack(pady=(5, 5))
+        self_test_info = ctk.CTkLabel(
+            self.content_frame,
+            text=S.STEP2_SELF_TEST_INFO,
+            text_color=COLORS_DARK['text_tertiary'],
+            font=FONTS['caption'],
+            justify="center"
+        )
+        self_test_info.pack(pady=(SPACING['xs'], SPACING['xs']))
 
         # Continue text
-        continue_info = ttk.Label(self.content_frame,
-                        text=S.STEP2_CONTINUE_INFO,
-                        foreground="gray", justify=tk.CENTER, font=("TkDefaultFont", 9))
-        continue_info.pack(pady=(5, 20))
+        continue_info = ctk.CTkLabel(
+            self.content_frame,
+            text=S.STEP2_CONTINUE_INFO,
+            text_color=COLORS_DARK['text_tertiary'],
+            font=FONTS['caption'],
+            justify="center"
+        )
+        continue_info.pack(pady=(SPACING['xs'], SPACING['lg']))
 
         # Next button
-        self.next_button = ttk.Button(self.content_frame, text=S.STEP2_BUTTON,
-                                     command=self._on_next_from_monitoring)
-        self.next_button.pack(pady=20)
+        self.next_button = ctk.CTkButton(
+            self.content_frame,
+            text=S.STEP2_BUTTON,
+            command=self._on_next_from_monitoring,
+            fg_color=COLORS_DARK['primary'],
+            hover_color=COLORS_DARK['primary_hover'],
+            text_color='white',
+            font=FONTS['body'],
+            corner_radius=DIMENSIONS['corner_radius'],
+            height=DIMENSIONS['button_height']
+        )
+        self.next_button.pack(pady=SPACING['lg'])
 
         # Start updating buffer stats
         self._update_buffer_stats()
 
     def _build_step3_send_message(self):
         """Build Step 4: Enter username to search"""
-        self.step_label.config(text=S.STEP3_LABEL)
+        self.step_label.configure(text=S.STEP3_LABEL)
 
         # Title
-        title = ttk.Label(self.content_frame, text=S.STEP3_TITLE,
-                         font=("TkDefaultFont", 12, "bold"))
-        title.pack(pady=(20, 20))
+        title = ctk.CTkLabel(
+            self.content_frame,
+            text=S.STEP3_TITLE,
+            font=FONTS['h1'],
+            text_color=COLORS_DARK['text_primary']
+        )
+        title.pack(pady=(SPACING['lg'], SPACING['lg']))
 
         # Instructions
-        instruction = ttk.Label(self.content_frame,
-                               text=S.STEP3_INSTRUCTION,
-                               foreground="gray", justify=tk.CENTER)
-        instruction.pack(pady=(0, 20))
+        instruction = ctk.CTkLabel(
+            self.content_frame,
+            text=S.STEP3_INSTRUCTION,
+            text_color=COLORS_DARK['text_secondary'],
+            font=FONTS['body'],
+            justify="center"
+        )
+        instruction.pack(pady=(0, SPACING['lg']))
 
         # Username entry
-        username_frame = ttk.Frame(self.content_frame)
-        username_frame.pack(padx=40, pady=20)
+        username_frame = ctk.CTkFrame(self.content_frame, fg_color="transparent")
+        username_frame.pack(padx=SPACING['xl'], pady=SPACING['lg'])
 
-        username_label = ttk.Label(username_frame, text=S.STEP3_USERNAME_LABEL, font=("TkDefaultFont", 10))
-        username_label.pack(side=tk.LEFT, padx=(0, 10))
+        username_label = ctk.CTkLabel(
+            username_frame,
+            text=S.STEP3_USERNAME_LABEL,
+            font=FONTS['body'],
+            text_color=COLORS_DARK['text_primary']
+        )
+        username_label.pack(side="left", padx=(0, SPACING['sm']))
 
-        self.username_entry = ttk.Entry(username_frame, font=("TkDefaultFont", 12), width=25)
-        self.username_entry.pack(side=tk.LEFT)
+        self.username_entry = ctk.CTkEntry(
+            username_frame,
+            font=FONTS['h2'],
+            width=250,
+            height=DIMENSIONS['input_height'],
+            fg_color=COLORS_DARK['bg_elevated'],
+            border_color=COLORS_DARK['border'],
+            text_color=COLORS_DARK['text_primary']
+        )
+        self.username_entry.pack(side="left")
         self.username_entry.bind('<KeyRelease>', self._on_username_changed)
         self.username_entry.focus()
 
         # Buffer still updating
-        self.buffer_label_step3 = ttk.Label(self.content_frame,
-                                           text=S.STEP3_BUFFER_LOADING,
-                                           foreground="gray", font=("TkDefaultFont", 9))
-        self.buffer_label_step3.pack(pady=(30, 10))
+        self.buffer_label_step3 = ctk.CTkLabel(
+            self.content_frame,
+            text=S.STEP3_BUFFER_LOADING,
+            text_color=COLORS_DARK['text_tertiary'],
+            font=FONTS['caption']
+        )
+        self.buffer_label_step3.pack(pady=(SPACING['xl'], SPACING['sm']))
 
         # Search button
-        self.search_button = ttk.Button(self.content_frame, text=S.STEP3_BUTTON,
-                                       command=self._on_search_username, state=tk.DISABLED)
-        self.search_button.pack(pady=20)
+        self.search_button = ctk.CTkButton(
+            self.content_frame,
+            text=S.STEP3_BUTTON,
+            command=self._on_search_username,
+            state="disabled",
+            fg_color=COLORS_DARK['primary'],
+            hover_color=COLORS_DARK['primary_hover'],
+            text_color='white',
+            font=FONTS['body'],
+            corner_radius=DIMENSIONS['corner_radius'],
+            height=DIMENSIONS['button_height']
+        )
+        self.search_button.pack(pady=SPACING['lg'])
 
         # Continue updating buffer stats
         self._update_buffer_stats()
 
     def _build_step4_searching(self):
         """Build searching screen (brief loading while searching)"""
-        self.step_label.config(text="")
+        self.step_label.configure(text="")
 
         # Searching animation
-        title = ttk.Label(self.content_frame, text=S.STEP4_TITLE,
-                         font=("TkDefaultFont", 12, "bold"))
-        title.pack(pady=(40, 20))
+        title = ctk.CTkLabel(
+            self.content_frame,
+            text=S.STEP4_TITLE,
+            font=FONTS['h1'],
+            text_color=COLORS_DARK['text_primary']
+        )
+        title.pack(pady=(SPACING['xl'], SPACING['lg']))
 
-        looking = ttk.Label(self.content_frame, text=S.STEP4_LOOKING_FOR.format(username=self.username),
-                           foreground="gray")
-        looking.pack(pady=10)
+        looking = ctk.CTkLabel(
+            self.content_frame,
+            text=S.STEP4_LOOKING_FOR.format(username=self.username),
+            text_color=COLORS_DARK['text_secondary'],
+            font=FONTS['body']
+        )
+        looking.pack(pady=SPACING['sm'])
 
-        self.search_status = ttk.Label(self.content_frame, text=S.STEP4_STATUS,
-                                      foreground="blue")
-        self.search_status.pack(pady=20)
+        self.search_status = ctk.CTkLabel(
+            self.content_frame,
+            text=S.STEP4_STATUS,
+            text_color=COLORS_DARK['primary'],
+            font=FONTS['body']
+        )
+        self.search_status.pack(pady=SPACING['lg'])
 
     def _build_step5_results(self):
         """Build Step 5: Results - will be populated by _display_results"""
-        self.step_label.config(text=S.RESULTS_LABEL)
+        self.step_label.configure(text=S.RESULTS_LABEL)
         # Results content will be added by _display_results method
 
     # Event Handlers
@@ -348,23 +515,23 @@ class Application:
         url = self.url_entry.get().strip()
 
         if not url:
-            self.url_icon_label.config(text="")
-            self.start_button.config(state=tk.DISABLED)
-            self.status_label.config(text=S.STEP1_HINT, foreground="gray")
+            self.url_icon_label.configure(text="")
+            self.start_button.configure(state="disabled")
+            self.status_label.configure(text=S.STEP1_HINT, text_color=COLORS_DARK['text_tertiary'])
             return
 
         # Parse URL
         self.video_id = parse_youtube_url(url)
 
         if not self.video_id:
-            self.url_icon_label.config(text="⚠️")
-            self.start_button.config(state=tk.DISABLED)
-            self.status_label.config(text=S.STEP1_INVALID_URL, foreground="red")
+            self.url_icon_label.configure(text="⚠️")
+            self.start_button.configure(state="disabled")
+            self.status_label.configure(text=S.STEP1_INVALID_URL, text_color=COLORS_DARK['error'])
             return
 
         # Show validating
-        self.url_icon_label.config(text="⏳")
-        self.status_label.config(text=S.STEP1_VALIDATING, foreground="blue")
+        self.url_icon_label.configure(text="⏳")
+        self.status_label.configure(text=S.STEP1_VALIDATING, text_color=COLORS_DARK['primary'])
 
         # Schedule validation to run after UI updates
         self.root.after(50, self._do_validation, self.video_id)
@@ -377,13 +544,13 @@ class Application:
     def _handle_validation_result(self, result):
         """Handle validation result"""
         if result['valid'] and result['live']:
-            self.url_icon_label.config(text="✓")
-            self.start_button.config(state=tk.NORMAL)
-            self.status_label.config(text=S.STEP1_READY, foreground="green")
+            self.url_icon_label.configure(text="✓")
+            self.start_button.configure(state="normal")
+            self.status_label.configure(text=S.STEP1_READY, text_color=COLORS_DARK['success'])
         else:
-            self.url_icon_label.config(text="⚠️")
-            self.start_button.config(state=tk.DISABLED)
-            self.status_label.config(text=result['error'], foreground="red")
+            self.url_icon_label.configure(text="⚠️")
+            self.start_button.configure(state="disabled")
+            self.status_label.configure(text=result['error'], text_color=COLORS_DARK['error'])
 
     def _on_start_clicked(self):
         """Start monitoring - transition to connecting state"""
@@ -438,11 +605,11 @@ class Application:
             try:
                 if self.current_state == STATE_STEP2_MONITORING:
                     if hasattr(self, 'buffer_label') and self.buffer_label.winfo_exists():
-                        self.buffer_label.config(text=stats_text)
+                        self.buffer_label.configure(text=stats_text)
                 elif self.current_state == STATE_STEP3_SEND_MESSAGE:
                     if hasattr(self, 'buffer_label_step3') and self.buffer_label_step3.winfo_exists():
-                        self.buffer_label_step3.config(text=stats_text)
-            except tk.TclError:
+                        self.buffer_label_step3.configure(text=stats_text)
+            except Exception:
                 # Widget was destroyed, stop updating
                 return
 
@@ -465,7 +632,7 @@ class Application:
     def _update_countdown(self):
         """Update countdown display"""
         if hasattr(self, 'countdown_label') and self.countdown_label.winfo_exists():
-            self.countdown_label.config(text=str(self.countdown_seconds))
+            self.countdown_label.configure(text=str(self.countdown_seconds))
 
             if self.countdown_seconds > 0:
                 self.countdown_seconds -= 1
@@ -498,9 +665,9 @@ class Application:
         """Handle username entry changes"""
         username = self.username_entry.get().strip()
         if username:
-            self.search_button.config(state=tk.NORMAL)
+            self.search_button.configure(state="normal")
         else:
-            self.search_button.config(state=tk.DISABLED)
+            self.search_button.configure(state="disabled")
 
     def _on_search_username(self):
         """User clicked search button - perform search immediately"""
@@ -539,72 +706,137 @@ class Application:
             match = matches[0]  # Show most recent message
             timestamp_str = match['timestamp'].strftime("%H:%M:%S")
 
-            result_frame = ttk.Frame(self.content_frame)
-            result_frame.pack(expand=True, fill=tk.BOTH, pady=30)
+            result_frame = ctk.CTkFrame(self.content_frame, fg_color="transparent")
+            result_frame.pack(expand=True, fill="both", pady=SPACING['xl'])
 
-            icon = ttk.Label(result_frame, text="✅", font=("TkDefaultFont", 48))
-            icon.pack(pady=(20, 10))
+            icon = ctk.CTkLabel(
+                result_frame,
+                text="✅",
+                font=FONTS['display_icon'],
+                text_color=COLORS_DARK['text_primary']
+            )
+            icon.pack(pady=(SPACING['lg'], SPACING['sm']))
 
-            title = ttk.Label(result_frame, text=S.RESULTS_SUCCESS_TITLE,
-                            font=("TkDefaultFont", 16, "bold"), foreground="green")
-            title.pack(pady=5)
+            title = ctk.CTkLabel(
+                result_frame,
+                text=S.RESULTS_SUCCESS_TITLE,
+                font=FONTS['h1'],
+                text_color=COLORS_DARK['success']
+            )
+            title.pack(pady=SPACING['xs'])
 
             # Show count if multiple messages
             if len(matches) > 1:
-                count_label = ttk.Label(result_frame,
-                                       text=S.RESULTS_SUCCESS_COUNT.format(count=len(matches), username=self.username),
-                                       foreground="gray", font=("TkDefaultFont", 9))
-                count_label.pack(pady=5)
+                count_label = ctk.CTkLabel(
+                    result_frame,
+                    text=S.RESULTS_SUCCESS_COUNT.format(count=len(matches), username=self.username),
+                    text_color=COLORS_DARK['text_tertiary'],
+                    font=FONTS['caption']
+                )
+                count_label.pack(pady=SPACING['xs'])
 
             # Show latest message
-            msg_frame = ttk.Frame(result_frame, relief=tk.SOLID, borderwidth=1)
-            msg_frame.pack(padx=40, pady=15, fill=tk.X)
+            msg_frame = ctk.CTkFrame(
+                result_frame,
+                fg_color=COLORS_DARK['bg_surface'],
+                border_color=COLORS_DARK['border'],
+                border_width=1,
+                corner_radius=DIMENSIONS['corner_radius']
+            )
+            msg_frame.pack(padx=SPACING['xl'], pady=SPACING['md'], fill="x")
 
-            msg_label = ttk.Label(msg_frame, text=S.RESULTS_LATEST_MESSAGE,
-                                 foreground="gray", font=("TkDefaultFont", 9))
-            msg_label.pack(anchor=tk.W, padx=10, pady=(10, 5))
+            msg_label = ctk.CTkLabel(
+                msg_frame,
+                text=S.RESULTS_LATEST_MESSAGE,
+                text_color=COLORS_DARK['text_tertiary'],
+                font=FONTS['caption']
+            )
+            msg_label.pack(anchor="w", padx=SPACING['sm'], pady=(SPACING['sm'], SPACING['xs']))
 
-            message_text = ttk.Label(msg_frame, text=match['message'],
-                                    font=("TkDefaultFont", 11), wraplength=350)
-            message_text.pack(padx=10, pady=(0, 5))
+            message_text = ctk.CTkLabel(
+                msg_frame,
+                text=match['message'],
+                font=FONTS['body'],
+                text_color=COLORS_DARK['text_primary'],
+                wraplength=400
+            )
+            message_text.pack(padx=SPACING['sm'], pady=(0, SPACING['xs']))
 
-            timestamp_label = ttk.Label(msg_frame, text=S.RESULTS_TIMESTAMP.format(time=timestamp_str),
-                                       foreground="gray", font=("TkDefaultFont", 9))
-            timestamp_label.pack(anchor=tk.E, padx=10, pady=(0, 10))
+            timestamp_label = ctk.CTkLabel(
+                msg_frame,
+                text=S.RESULTS_TIMESTAMP.format(time=timestamp_str),
+                text_color=COLORS_DARK['text_tertiary'],
+                font=FONTS['caption']
+            )
+            timestamp_label.pack(anchor="e", padx=SPACING['sm'], pady=(0, SPACING['sm']))
 
         else:
             # No messages found
             msg_count = stats['message_count']
             time_span = int(stats['time_span_seconds'])
 
-            result_frame = ttk.Frame(self.content_frame)
-            result_frame.pack(expand=True, fill=tk.BOTH, pady=40)
+            result_frame = ctk.CTkFrame(self.content_frame, fg_color="transparent")
+            result_frame.pack(expand=True, fill="both", pady=SPACING['xl'])
 
-            icon = ttk.Label(result_frame, text="❌", font=("TkDefaultFont", 48))
-            icon.pack(pady=(20, 10))
+            icon = ctk.CTkLabel(
+                result_frame,
+                text="❌",
+                font=FONTS['display_icon'],
+                text_color=COLORS_DARK['text_primary']
+            )
+            icon.pack(pady=(SPACING['lg'], SPACING['sm']))
 
-            title = ttk.Label(result_frame, text=S.RESULTS_FAIL_TITLE,
-                            font=("TkDefaultFont", 16, "bold"), foreground="red")
-            title.pack(pady=10)
+            title = ctk.CTkLabel(
+                result_frame,
+                text=S.RESULTS_FAIL_TITLE,
+                font=FONTS['h1'],
+                text_color=COLORS_DARK['error']
+            )
+            title.pack(pady=SPACING['sm'])
 
-            details = ttk.Label(result_frame,
-                              text=S.RESULTS_FAIL_DETAILS.format(username=self.username, count=msg_count, seconds=time_span),
-                              justify=tk.CENTER, foreground="gray", font=("TkDefaultFont", 10))
-            details.pack(pady=10)
+            details = ctk.CTkLabel(
+                result_frame,
+                text=S.RESULTS_FAIL_DETAILS.format(username=self.username, count=msg_count, seconds=time_span),
+                justify="center",
+                text_color=COLORS_DARK['text_secondary'],
+                font=FONTS['body'],
+                wraplength=450
+            )
+            details.pack(pady=SPACING['sm'])
 
         # Button frame
-        button_frame = ttk.Frame(self.content_frame)
-        button_frame.pack(pady=10)
+        button_frame = ctk.CTkFrame(self.content_frame, fg_color="transparent")
+        button_frame.pack(pady=SPACING['sm'])
 
         # Search Again button (searches same buffer with new username)
-        search_again_btn = ttk.Button(button_frame, text=S.RESULTS_BUTTON_SEARCH_AGAIN,
-                                      command=self._on_search_again)
-        search_again_btn.pack(side=tk.LEFT, padx=5)
+        search_again_btn = ctk.CTkButton(
+            button_frame,
+            text=S.RESULTS_BUTTON_SEARCH_AGAIN,
+            command=self._on_search_again,
+            fg_color=COLORS_DARK['primary'],
+            hover_color=COLORS_DARK['primary_hover'],
+            text_color='white',
+            font=FONTS['body'],
+            corner_radius=DIMENSIONS['corner_radius'],
+            height=DIMENSIONS['button_height']
+        )
+        search_again_btn.pack(side="left", padx=SPACING['xs'])
 
         # Start new test button
-        new_test_btn = ttk.Button(button_frame, text=S.RESULTS_BUTTON_NEW_TEST,
-                                  command=self._on_new_test)
-        new_test_btn.pack(side=tk.LEFT, padx=5)
+        new_test_btn = ctk.CTkButton(
+            button_frame,
+            text=S.RESULTS_BUTTON_NEW_TEST,
+            command=self._on_new_test,
+            fg_color="transparent",
+            hover_color=COLORS_DARK['bg_elevated'],
+            text_color=COLORS_DARK['primary'],
+            border_width=2,
+            border_color=COLORS_DARK['primary'],
+            font=FONTS['body'],
+            corner_radius=DIMENSIONS['corner_radius'],
+            height=DIMENSIONS['button_height']
+        )
+        new_test_btn.pack(side="left", padx=SPACING['xs'])
 
     def _on_search_again(self):
         """Search again with a different username (keeps buffer)"""
