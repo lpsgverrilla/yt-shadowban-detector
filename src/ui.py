@@ -7,8 +7,6 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from threading import Thread
 from datetime import datetime
-import random
-import string
 from url_validator import parse_youtube_url, validate_livestream
 from chat_engine import YouTubeChatBuffer
 import strings as S
