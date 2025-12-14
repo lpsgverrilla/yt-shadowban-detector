@@ -40,3 +40,4 @@ venv/
 # OS
 Thumbs.db
 .DS_Store
+/docs/
