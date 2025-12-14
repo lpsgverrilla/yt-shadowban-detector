@@ -1,0 +1,4 @@
+# Development dependencies
+-r requirements.txt  # Include production dependencies
+pytest>=8.0.0
+pytest-cov>=4.1.0  # For code coverage reports

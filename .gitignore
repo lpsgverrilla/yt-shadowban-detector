@@ -1,6 +1,8 @@
 # Ignore planning and documentation files in root folder only
 /*.txt
 !README.txt
+!requirements.txt
+!requirements-dev.txt
 /*.md
 !README.md
 
