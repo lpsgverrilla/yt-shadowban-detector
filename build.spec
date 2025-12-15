@@ -15,6 +15,7 @@ a = Analysis(
     binaries=[],
     datas=[
         (ctk_path, 'customtkinter'),
+        ('icon.ico', '.'),  # Bundle icon for window/taskbar
     ],
     hiddenimports=[
         'pytchat',
@@ -69,4 +70,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='icon.ico',  # Set EXE icon
 )

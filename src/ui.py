@@ -3,6 +3,8 @@ User Interface for yt-shadowban-detector
 Redesigned step-by-step wizard interface
 """
 
+import sys
+import os
 import customtkinter as ctk
 from tkinter import messagebox
 from threading import Thread
@@ -21,6 +23,20 @@ from components import (
     create_icon_header,
     create_status_indicator
 )
+
+
+def resource_path(relative_path):
+    """
+    Get absolute path to resource, works for dev and for PyInstaller
+    """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        # Running in development mode
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 # UI States (Step-by-step flow)
@@ -45,6 +61,14 @@ class Application:
         self.root.title("yt-shadowban-detector")  # Text-only window title
         self.root.geometry(f"{DIMENSIONS['window_width']}x{DIMENSIONS['window_height']}")
         self.root.resizable(False, False)
+
+        # Set window icon (Windows only)
+        if sys.platform == "win32":
+            try:
+                self.root.iconbitmap(resource_path("icon.ico"))
+            except Exception:
+                # Icon file not found or invalid, silently ignore
+                pass
 
         # Try to keep window on top
         try:
