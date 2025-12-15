@@ -1,0 +1,93 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.1 - no v prefix)'
+        required: true
+        type: string
+
+permissions:
+  contents: write  # Required for commits and tags
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for tag operations
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ inputs.version }}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Invalid version format '$VERSION'"
+            echo "Expected format: X.Y.Z (e.g., 1.0.1) with no 'v' prefix"
+            exit 1
+          fi
+          echo "Version format valid: $VERSION"
+
+      - name: Check if tag already exists
+        run: |
+          VERSION="${{ inputs.version }}"
+          git fetch --tags
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Error: Tag v$VERSION already exists"
+            echo "Please use a different version number"
+            exit 1
+          fi
+          echo "Tag v$VERSION does not exist - proceeding"
+
+      - name: Update README.md version
+        run: |
+          VERSION="${{ inputs.version }}"
+          sed -i '3s/^\*\*Version:\*\* .*$/\*\*Version:\*\* '"$VERSION"'/' README.md
+          echo "Updated README.md line 3 to version $VERSION"
+          echo ""
+          echo "Git diff:"
+          git diff README.md
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit version update
+        run: |
+          VERSION="${{ inputs.version }}"
+          git add README.md
+          git commit -m "chore: bump version to $VERSION"
+          echo "Committed version update"
+
+      - name: Create annotated tag
+        run: |
+          VERSION="${{ inputs.version }}"
+          git tag -a "v$VERSION" -m "Release version $VERSION"
+          echo "Created tag v$VERSION"
+
+      - name: Push commit and tag
+        run: |
+          VERSION="${{ inputs.version }}"
+          git push origin main
+          git push origin "v$VERSION"
+          echo "Pushed commit and tag v$VERSION"
+
+      - name: Workflow summary
+        run: |
+          VERSION="${{ inputs.version }}"
+          echo "## Release Preparation Complete! :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Successfully prepared release for version **$VERSION**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Actions Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Updated README.md to version $VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Committed changes to main branch" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Created and pushed tag \`v$VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "The tag push has triggered the **Build and Release** workflow." >> $GITHUB_STEP_SUMMARY
+          echo "Check the [Actions tab](../../actions) to monitor the release build." >> $GITHUB_STEP_SUMMARY
