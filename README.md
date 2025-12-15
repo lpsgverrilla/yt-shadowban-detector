@@ -68,6 +68,39 @@ python -m PyInstaller build.spec
 # Executable will be in dist/yt-shadowban-detector.exe
 ```
 
+## Release Process
+
+This project uses GitHub Actions to automate release preparation. To create a new release using the GitHub CLI:
+
+```bash
+# Trigger the prepare-release workflow with a version number
+gh workflow run prepare-release.yml -f version=X.Y.Z
+
+# Example: Release version 1.0.1
+gh workflow run prepare-release.yml -f version=1.0.1
+```
+
+**Version format**: Use semantic versioning (e.g., `1.0.1`) **without** the "v" prefix.
+
+**What the workflow does**:
+1. Validates the version format
+2. Checks that the tag doesn't already exist
+3. Updates the version in README.md (line 3)
+4. Commits the change to the main branch
+5. Creates and pushes an annotated git tag `v{version}`
+6. Triggers the build and release workflow automatically
+
+**Monitoring the workflow**:
+```bash
+# View workflow runs
+gh run list --workflow=prepare-release.yml
+
+# Watch the latest run
+gh run watch
+```
+
+For detailed release documentation, see [docs/development/releasing.md](docs/development/releasing.md).
+
 ## Usage
 
 1. Launch the application
