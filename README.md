@@ -1,6 +1,6 @@
 # yt-shadowban-detector
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 
 A Windows desktop application that detects whether messages sent by a specific user in a YouTube livestream chat are visible to all viewers or have been shadowbanned.
 
