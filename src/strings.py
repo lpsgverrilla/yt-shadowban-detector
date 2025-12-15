@@ -99,7 +99,7 @@ STEP4_STATUS = "Checking messages..."
 RESULTS_LABEL = "Results"
 
 # Success
-RESULTS_SUCCESS_TITLE = "Messages Found!"
+RESULTS_SUCCESS_TITLE = "Public Message Found!"
 RESULTS_SUCCESS_COUNT = "Found {count} messages from @{username}"
 RESULTS_LATEST_MESSAGE = "Latest message:"
 RESULTS_TIMESTAMP = "Timestamp: {time}"
