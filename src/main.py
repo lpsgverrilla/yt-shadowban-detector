@@ -3,7 +3,7 @@ yt-shadowban-detector - YouTube Shadowban Detection Tool
 Entry point for the application
 """
 
-import tkinter as tk
+import customtkinter as ctk
 from ui import Application
 import sys
 
@@ -14,7 +14,7 @@ def main():
     """
     try:
         # Create root window
-        root = tk.Tk()
+        root = ctk.CTk()
 
         # Create application
         app = Application(root)
