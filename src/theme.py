@@ -43,9 +43,9 @@ FONTS = {
     'display': ('Segoe UI', 36, 'bold'),         # Countdown
     'h1': ('Segoe UI', 18, 'bold'),              # Step titles
     'h2': ('Segoe UI', 14, 'bold'),              # Section headers
-    'body': ('Segoe UI', 11, 'normal'),          # Body text
-    'body_sm': ('Segoe UI', 10, 'normal'),       # Small body
-    'caption': ('Segoe UI', 9, 'normal'),        # Captions
+    'body': ('Segoe UI', 13, 'normal'),          # Body text
+    'body_sm': ('Segoe UI', 12, 'normal'),       # Small body
+    'caption': ('Segoe UI', 10, 'normal'),       # Captions
 }
 
 # Spacing constants

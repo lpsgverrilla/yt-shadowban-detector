@@ -88,7 +88,7 @@ class Application:
             font=FONTS['caption'],
             text_color=COLORS_DARK['text_tertiary']
         )
-        self.step_label.pack(anchor="e", pady=(0, SPACING['sm']))
+        self.step_label.pack(anchor="e", padx=(0, SPACING['md']), pady=(SPACING['md'], SPACING['sm']))
 
         # Content frame (this changes based on state)
         self.content_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
@@ -146,15 +146,6 @@ class Application:
             command=lambda: self._set_state(STATE_STEP1_URL)
         )
         start_now_button.pack(pady=SPACING['sm'])
-
-        # Caption
-        caption = ctk.CTkLabel(
-            center_frame,
-            text="Just 4 simple steps",
-            text_color=COLORS_DARK['text_tertiary'],
-            font=FONTS['caption']
-        )
-        caption.pack(pady=(SPACING['xs'], 0))
 
     def _set_state(self, state):
         """
